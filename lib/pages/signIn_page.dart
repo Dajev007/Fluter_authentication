@@ -1,7 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:projecttest/firebase_auth_services.dart';
-
+import 'home_page.dart';
 
 class SignInPage extends StatefulWidget {
   @override
@@ -12,6 +12,7 @@ class _SignInPageState extends State<SignInPage> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   final FirebaseAuthServices _authServices = FirebaseAuthServices();
+  bool _obscurePassword = true; // For password visibility toggle
 
   @override
   Widget build(BuildContext context) {
@@ -36,10 +37,20 @@ class _SignInPageState extends State<SignInPage> {
             const SizedBox(height: 20),
             TextField(
               controller: _passwordController,
-              obscureText: true,
-              decoration: const InputDecoration(
+              obscureText: _obscurePassword,
+              decoration: InputDecoration(
                 labelText: 'Password',
-                border: OutlineInputBorder(),
+                border: const OutlineInputBorder(),
+                suffixIcon: IconButton(
+                  icon: Icon(
+                    _obscurePassword ? Icons.visibility : Icons.visibility_off,
+                  ),
+                  onPressed: () {
+                    setState(() {
+                      _obscurePassword = !_obscurePassword;
+                    });
+                  },
+                ),
               ),
             ),
             const SizedBox(height: 40),
@@ -52,8 +63,10 @@ class _SignInPageState extends State<SignInPage> {
                   password,
                 );
                 if (user != null) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Signed in successfully')),
+                  // Navigate to home page on successful login
+                  Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(builder: (context) => HomePage()),
                   );
                 } else {
                   ScaffoldMessenger.of(context).showSnackBar(

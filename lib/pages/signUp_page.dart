@@ -1,6 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:projecttest/firebase_auth_services.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 
 class SignUpPage extends StatefulWidget {
   @override
@@ -10,8 +11,11 @@ class SignUpPage extends StatefulWidget {
 class _SignUpPageState extends State<SignUpPage> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
+  final TextEditingController _confirmPasswordController = TextEditingController();
   final FirebaseAuthServices _authServices = FirebaseAuthServices();
-  String _errorMessage = ''; // New variable to store error messages
+  bool _obscurePassword = true;
+
+  String _errorMessage = '';
 
   @override
   Widget build(BuildContext context) {
@@ -36,40 +40,66 @@ class _SignUpPageState extends State<SignUpPage> {
             const SizedBox(height: 20),
             TextField(
               controller: _passwordController,
-              obscureText: true,
-              decoration: const InputDecoration(
+              obscureText: _obscurePassword,
+              decoration: InputDecoration(
                 labelText: 'Password',
-                border: OutlineInputBorder(),
+                border: const OutlineInputBorder(),
+                suffixIcon: IconButton(
+                  icon: Icon(
+                    _obscurePassword ? Icons.visibility : Icons.visibility_off,
+                  ),
+                  onPressed: () {
+                    setState(() {
+                      _obscurePassword = !_obscurePassword;
+                    });
+                  },
+                ),
+              ),
+            ),
+            const SizedBox(height: 20),
+            TextField(
+              controller: _confirmPasswordController,
+              obscureText: _obscurePassword,
+              decoration: InputDecoration(
+                labelText: 'Confirm Password',
+                border: const OutlineInputBorder(),
+                suffixIcon: IconButton(
+                  icon: Icon(
+                    _obscurePassword ? Icons.visibility : Icons.visibility_off,
+                  ),
+                  onPressed: () {
+                    setState(() {
+                      _obscurePassword = !_obscurePassword;
+                    });
+                  },
+                ),
               ),
             ),
             const SizedBox(height: 40),
             ElevatedButton(
               onPressed: () async {
-                setState(() {
-                  _errorMessage = ''; // Reset error message on button press
-                });
-
                 String email = _emailController.text.trim();
                 String password = _passwordController.text.trim();
+                String confirmPassword = _confirmPasswordController.text.trim();
 
-                try {
-                  User? user = await _authServices.signupWithEmailAndPassword(
-                    email,
-                    password,
-                  );
-                  if (user != null) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('Signed up successfully')),
-                    );
-                  } else {
-                    setState(() {
-                      _errorMessage = 'Sign up failed. Please try again.';
-                    });
-                  }
-                } catch (e) {
-                  // Display error message on sign up failure
+                if (password != confirmPassword) {
                   setState(() {
-                    _errorMessage = e.toString();
+                    _errorMessage = "Passwords do not match!";
+                  });
+                  return;
+                }
+
+                User? user = await _authServices.signupWithEmailAndPassword(
+                  email,
+                  password,
+                );
+                if (user != null) {
+                  // Show success message and navigate to SignInPage
+                  Fluttertoast.showToast(msg: 'Sign up successful, please login');
+                  Navigator.pushNamed(context, '/signin');
+                } else {
+                  setState(() {
+                    _errorMessage = 'Sign up failed';
                   });
                 }
               },

@@ -1,11 +1,12 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:projecttest/pages/home_page.dart';
 import 'package:projecttest/pages/signin_page.dart';
 import 'package:projecttest/pages/signup_page.dart';
 
 void main() async {
-  WidgetsFlutterBinding.ensureInitialized(); // Ensures that Firebase is initialized before the app starts
-  await Firebase.initializeApp(); // Initializes Firebase
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp();
   runApp(MyApp());
 }
 
@@ -21,6 +22,7 @@ class MyApp extends StatelessWidget {
       routes: {
         '/signin': (context) => SignInPage(),
         '/signup': (context) => SignUpPage(),
+        '/home': (context) => HomePage(),
       },
     );
   }
